@@ -1,6 +1,6 @@
-(ns test-report.core-test
+(ns test-report.summary-test
   (:require [clojure.test :refer :all]
-            [test-report.core :refer [summarize]]))
+            [test-report.summary :refer :all]))
 
 (create-ns 'example.first-test)
 (intern 'example.first-test 'passing (fn []))

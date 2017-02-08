@@ -1,16 +1,11 @@
 (ns test-report.core
   (:require [clojure.test]
-            [robert.hooke :refer [add-hook remove-hook]]))
+            [robert.hooke :refer [add-hook remove-hook]]
+            [test-report.message :as message]
+            [test-report.options :refer [with-options]]))
 
-(def message-types
-  (->
-    (make-hierarchy)
-    (derive :pass :result)
-    (derive :fail :result)
-    (derive :error :result)))
-
-(defn- result? [message]
-  (isa? message-types (:type message) :result))
+(def ^:dynamic *reporters* [clojure.test/report])
+(def ^:dynamic *summarizers* [])
 
 (defn- add-time [message]
   (assoc message :time (System/nanoTime)))
@@ -18,7 +13,7 @@
 (defn- add-context [message]
   (assoc message :context clojure.test/*testing-contexts*))
 
-(defmulti enrich :type :hierarchy #'message-types)
+(defmulti ^:private enrich :type :hierarchy #'message/types)
 
 (defmethod enrich :result [message]
   (-> message add-time add-context))
@@ -27,81 +22,35 @@
   (-> message add-time))
 
 (defn- apply-all [functions & args]
-  (->
-   (apply juxt functions)
-   (apply args)))
+  (when (seq functions)
+    (->
+     (apply juxt functions)
+     (apply args))))
 
-(defn- report [options messages message]
-  (let [message ((:enrich options) message)]
+(defn- report [messages message]
+  (let [message (enrich message)]
     (dosync (alter messages conj message))
-    (apply-all (:report options) message)))
+    (apply-all *reporters* message)))
 
-(defn- collect-messages [options f & args]
-  (let [messages (ref [])
-        options (merge {:enrich enrich
-                        :report [clojure.test/report]
-                        :summarize []} options)]
-    (binding [clojure.test/report (partial report options messages)]
+(defn- collect-messages [f & args]
+  (let [messages (ref [])]
+    (binding [clojure.test/report (partial report messages)]
       (let [result (apply f args)]
-        (apply-all (:summarize options) @messages)
+        (apply-all *summarizers* @messages)
         result))))
 
-(defn activate [options]
-  (remove-hook #'clojure.test/run-tests :test-report)
-  (add-hook #'clojure.test/run-tests :test-report (partial collect-messages options)))
+(defn activate
+  "Sets up the test reporter by hooking into clojure.test/run-tests.
 
-(defn- map-nested-between [f begin-pred end-pred values]
-  (loop [values values
-         acc []]
-    (let [[begin & after-begin] (drop-while (complement begin-pred) values)
-          [between [end & after-end]] (split-with (complement end-pred) after-begin)]
-      (if begin
-        (recur after-end (conj acc (f begin end between)))
-        acc))))
-
-(defn- duration [begin end]
-  (- (:time end) (:time begin)))
-
-(defn- transform-test-var [begin-test-var end-test-var contents]
-  {:var (:var begin-test-var)
-   :time (duration begin-test-var end-test-var)
-   :results (->> contents
-                 (filter result?)
-                 (map #(dissoc % :time)))})
-
-(defn- count-results [test-vars]
-  (let [result-types (->> test-vars
-                          (mapcat :results)
-                          (map :type))]
-    (merge {:test (count test-vars)
-            :assertion (count result-types)}
-           (zipmap (descendants message-types :result) (repeat 0))
-           (frequencies result-types))))
-
-(defn- add-result-counts [test-ns]
- (assoc test-ns :summary (-> test-ns :tests count-results)))
-
-(defn- transform-test-ns [begin-test-ns end-test-ns contents]
-  (add-result-counts
-   {:ns (:ns begin-test-ns)
-    :time (duration begin-test-ns end-test-ns)
-    :tests (map-nested-between transform-test-var
-                               #(= :begin-test-var (:type %))
-                               #(= :end-test-var (:type %))
-                               contents)}))
-
-
-(defn- sum-result-counts [test-nses]
-  (->> test-nses
-       (map :summary)
-       (apply merge-with +)))
-
-(defn- add-overall-result-counts [output]
-  (assoc output :summary (-> output :namespaces sum-result-counts)))
-
-(defn summarize [messages]
-  (add-overall-result-counts
-   {:namespaces (map-nested-between transform-test-ns
-                                    #(= :begin-test-ns (:type %))
-                                    #(= :end-test-ns (:type %))
-                                    messages)}))
+  Output may be configured by supplying the following options (or by binding the
+  corresponding dynamic vars):
+  :reporters   - a collection of functions called sequentially to process each
+                 message during a test run
+                 (default [clojure.test/report])
+  :summarizers - A collection of functions called sequentially to process all
+                 messages at the end of a test run
+                 (default [])"
+  ([] (activate {}))
+  ([options]
+   (remove-hook #'clojure.test/run-tests :test-report)
+   (add-hook #'clojure.test/run-tests :test-report #(with-options options (apply collect-messages %&)))))

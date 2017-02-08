@@ -10,4 +10,4 @@ for project in test-report lein-test-report test-report-junit-xml lein-test-repo
 done
 
 cd example
-lein test
+lein do clean, test

@@ -9,5 +9,5 @@
                           :plugins [['lein-test-report "0.1.0-SNAPSHOT"]]
                           :injections `[(require 'test-report-junit-xml.core)
                                         (require 'clojure.java.io)]
-                          :test-report {:summarize `[#(with-open [writer# (clojure.java.io/writer ~output-path)]
-                                                        (test-report-junit-xml.core/summarize writer# %))]}})))
+                          :test-report {:summarizers `[#(with-open [writer# (clojure.java.io/writer ~output-path)]
+                                                          (test-report-junit-xml.core/write writer# % ~(:test-report-junit-xml project {})))]}})))
