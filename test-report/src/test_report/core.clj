@@ -23,9 +23,8 @@
 
 (defn- apply-all [functions & args]
   (when (seq functions)
-    (->
-     (apply juxt functions)
-     (apply args))))
+    (-> (apply juxt functions)
+        (apply args))))
 
 (defn- report [messages message]
   (let [message (enrich message)]

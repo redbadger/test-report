@@ -30,7 +30,7 @@
            (frequencies result-types))))
 
 (defn- add-result-counts [test-ns]
- (assoc test-ns :summary (-> test-ns :tests count-results)))
+  (assoc test-ns :summary (-> test-ns :tests count-results)))
 
 (defn- transform-test-ns [begin-test-ns end-test-ns contents]
   (add-result-counts
