@@ -1,7 +1,9 @@
 (ns test-report.options)
 
 (defn- options->bindings [options]
-  `(dissoc (zipmap (map #(ns-resolve ~*ns* (symbol (str "*" (name %) "*"))) (keys ~options))
+  `(dissoc (zipmap (map #(or (ns-resolve ~*ns* (symbol (str "*" (name %) "*")))
+                             (throw (IllegalArgumentException. (str "Unknown option " %))))
+                        (keys ~options))
                    (vals ~options))
            nil))
 
