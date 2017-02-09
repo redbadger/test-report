@@ -1,5 +1,7 @@
 # test-report
 
+[![CircleCI](https://circleci.com/gh/redbadger/test-report.svg?style=svg)](https://circleci.com/gh/redbadger/test-report)
+
 test-report is a tool for customizing clojure.test output.
 
 ## Installation
