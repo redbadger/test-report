@@ -1,4 +1,4 @@
-(defproject test-report "0.1.0-SNAPSHOT"
+(defproject test-report "0.1.0"
   :description "Library providing hooks to customise clojure.test output"
   :url "https://github.com/redbadger/test-report"
   :scm {:dir ".."}

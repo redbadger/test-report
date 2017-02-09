@@ -9,7 +9,7 @@ test-report is a tool for customizing clojure.test output.
 The easiest way to get started is to add the lein-test-report plugin to your [Leiningen](https://github.com/technomancy/leiningen) project map. As it's only used in tests, it's best to add it only to the `:test` profile:
 
 ```clojure
-:profiles {:test {:plugins [[lein-test-report "0.1.0-SNAPSHOT"]]}}
+:profiles {:test {:plugins [[lein-test-report "0.1.0"]]}}
 ```
 
 ## Usage
