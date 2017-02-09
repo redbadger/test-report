@@ -1,4 +1,4 @@
-# clj-test-report
+# test-report
 
 WIP
 
