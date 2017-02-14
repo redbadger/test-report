@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 - `test-report`: package as a shaded uberjar using the [shade](https://github.com/redbadger/shade) plugin.
 
-## 0.1.0 - 2017-02-02
+## 0.1.0 - 2017-02-09
 ### Added
 - `lein-test-report`: a Leiningen plugin providing hooks to customise clojure.test output.
 - `test-report`: a library to provide the hooks.
