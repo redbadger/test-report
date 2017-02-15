@@ -9,4 +9,5 @@
              :shaded {:dependencies [[robert/hooke "1.3.0"]]
                       :shade {:namespaces [robert]}}
              :default [:leiningen/default :shaded]}
-  :aliases {"deploy" ["deploy-shaded-jar" "clojars"]})
+  :aliases {"deploy" ["deploy-shaded-jar" "clojars"]
+            "install" ["install-shaded-jar"]})
