@@ -10,7 +10,7 @@ The easiest way to get started is to add the lein-test-report plugin to your [Le
 As it's only used in tests, it's best to add it only to the `:test` profile:
 
 ```clojure
-:profiles {:test {:plugins [[lein-test-report "0.1.0"]]}}
+:profiles {:test {:plugins [[lein-test-report "0.2.0"]]}}
 ```
 
 ## Usage

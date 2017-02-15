@@ -1,4 +1,4 @@
-(defproject lein-test-report "0.2.0-SNAPSHOT"
+(defproject lein-test-report "0.2.0"
   :description "Leiningen plugin providing hooks to customise clojure.test output"
   :url "https://github.com/redbadger/test-report"
   :scm {:dir ".."}
