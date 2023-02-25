@@ -1,14 +1,19 @@
 (ns test-report.summary
   (:require [test-report.message :as message]))
 
+(def transform-ns-results
+  (comp (filter message/result?)
+        (map (fn [result] {:results [(dissoc result :time)]}))))
+
 (defn- map-nested-between [f begin-pred end-pred values]
   (loop [values values
          acc []]
-    (let [[begin & after-begin] (drop-while (complement begin-pred) values)
-          [between [end & after-end]] (split-with (complement end-pred) after-begin)]
+    (let [[before-begin [begin & after-begin]] (split-with (complement begin-pred) values)
+          [between [end & after-end]] (split-with (complement end-pred) after-begin)
+          results (into acc transform-ns-results before-begin)]
       (if begin
-        (recur after-end (conj acc (f begin end between)))
-        acc))))
+        (recur after-end (conj results (f begin end between)))
+        results))))
 
 (defn- duration [begin end]
   (- (:time end) (:time begin)))
