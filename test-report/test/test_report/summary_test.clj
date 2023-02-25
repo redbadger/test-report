@@ -9,6 +9,8 @@
 (intern 'example.first-test 'erroring (fn []))
 (create-ns 'example.second-test)
 (intern 'example.second-test 'passing (fn []))
+(create-ns 'example.empty-since-fixture-failed-test)
+(intern 'example.empty-since-fixture-failed-test 'erroring (fn []))
 
 (deftest summarize-messages
   (let [messages [{:type :begin-test-ns
@@ -71,11 +73,20 @@
                   {:type :end-test-ns
                    :ns (find-ns 'example.second-test)
                    :time 116894654251062}
+                  {:type :begin-test-ns
+                   :ns (find-ns 'example.empty-since-fixture-failed-test)
+                   :time 116894653100547}
+                  {:type :error
+                   :message "smth"
+                   :time 116894653734493}
+                  {:type :end-test-ns
+                   :ns (find-ns 'example.empty-since-fixture-failed-test)
+                   :time 116894654251062}
                   {:type :summary
                    :test 5
                    :pass 4
                    :fail 1
-                   :error 1
+                   :error 2
                    :time 116894654397872}]]
     (is (= {:namespaces [{:ns (find-ns 'example.first-test)
                           :time 25712629
@@ -106,10 +117,18 @@
                                     :assertion 1
                                     :pass 1
                                     :fail 0
-                                    :error 0}}]
-            :summary {:test 5
-                      :assertion 6
+                                    :error 0}}
+                         {:ns (find-ns 'example.empty-since-fixture-failed-test)
+                          :time 1150515
+                          :tests [{:results [{:message "smth" :type :error}]}]
+                          :summary {:test 1
+                                    :assertion 1
+                                    :pass 0
+                                    :fail 0
+                                    :error 1}}]
+            :summary {:test 6
+                      :assertion 7
                       :pass 4
                       :fail 1
-                      :error 1}}
+                      :error 2}}
            (summarize messages)))))
